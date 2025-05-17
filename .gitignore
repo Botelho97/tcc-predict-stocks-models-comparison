@@ -40,7 +40,6 @@ poetry.lock
 # Arquivos de dados grandes (comum em notebooks)
 data/raw/
 data/processed/
-*.csv
 *.h5
 *.feather
 *.parquet
