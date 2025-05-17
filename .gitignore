@@ -1,0 +1,60 @@
+# Arquivos do Jupyter Notebook
+.ipynb_checkpoints/
+*.ipynb
+
+# Configurações do Jupyter
+.jupyter/
+jupyter_notebook_config.py
+
+# Arquivos temporários do Notebook
+.nbsafety/
+
+# Byte-compiled / optimized / DLL files (Python geral)
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv/
+
+# Pip/Sconda/Poetry
+Pipfile.lock
+poetry.lock
+*.egg-info/
+*.egg
+.pytest_cache/
+
+# IDE/Editor
+.vscode/
+.idea/
+*.swp
+*.sublime-workspace
+
+# Arquivos de ambiente
+.env
+.env.local
+.secrets
+
+# Arquivos de dados grandes (comum em notebooks)
+data/raw/
+data/processed/
+*.csv
+*.h5
+*.feather
+*.parquet
+*.pkl
+*.pickle
+
+# Logs e outputs
+logs/
+*.log
+.ipynb_output/
+
+# Visualização no Notebook
+*.png
+*.jpg
+*.pdf
+*.svg
