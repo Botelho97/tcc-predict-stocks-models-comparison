@@ -1,6 +1,5 @@
 # Arquivos do Jupyter Notebook
 .ipynb_checkpoints/
-*.ipynb
 
 # Configurações do Jupyter
 .jupyter/
