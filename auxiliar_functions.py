@@ -38,7 +38,7 @@ def get_dollar_data() -> pd.DataFrame:
 
 def get_stocks_data(stock_name: str, starting_year: int = 2017, ending_year: int = 2024) -> pd.DataFrame:
     """
-    Get close price data from stock.
+    Get close price and volume data from stock.
 
     Args:
         stock_name (str): The stock symbol.
@@ -48,10 +48,24 @@ def get_stocks_data(stock_name: str, starting_year: int = 2017, ending_year: int
     Return:
         pd.Series: close prices from stock.
     """
+    stock_name = stock_name.upper()
     df = yf.Ticker(f'{stock_name}.SA').history(start=f'{starting_year}-01-01', end=f'{ending_year}-12-31')
     df = df.reset_index()
     df["Date"] = pd.to_datetime(df["Date"].dt.strftime("%Y-%m-%d"))
-    return df[["Date", "Close"]]
+    df.rename(columns={
+        "Close": f"Close {stock_name}",
+        "Volume": f"Volume {stock_name}"
+    }, inplace=True)
+    return df[["Date", f"Close {stock_name}", f"Volume {stock_name}"]]
 
 def concat_dataframes(df1: pd.DataFrame, df2: pd.DataFrame, df3: pd.DataFrame, df4: pd.DataFrame) -> pd.DataFrame:
     return df1.merge(df2, on="Date", how="left").merge(df3, on="Date", how="left").merge(df4, on="Date", how="left")
+
+def get_multiple_stocks_data(stock_list: list[str]) -> pd.DataFrame:
+    stocks_dfs = [get_stocks_data(stock) for stock in stock_list]
+
+    final_df = stocks_dfs[0]
+    for df in stocks_dfs[1:]:
+        final_df = final_df.merge(df, on="Date", how="left")
+
+    return final_df

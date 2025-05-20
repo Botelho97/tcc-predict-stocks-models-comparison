@@ -56,3 +56,6 @@ logs/
 *.jpg
 *.pdf
 *.svg
+
+# Testes
+test.*
