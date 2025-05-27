@@ -1,15 +1,13 @@
 import pandas as pd
-import matplotlib.pyplot as plt
-from matplotlib import rcParams
-import seaborn as sns
 import numpy as np
-from scipy import stats
 from sklearn.metrics import mean_absolute_percentage_error, root_mean_squared_error, r2_score
 from statsmodels.tsa.holtwinters import ExponentialSmoothing
 from statsmodels.tsa.api import SimpleExpSmoothing, Holt
 from pmdarima import auto_arima
+from statsmodels.stats.diagnostic import acorr_ljungbox  # Teste para ver se os resíduos são independentes
+from scipy.stats import kstest  # Para testar se os resíduos seguem distribuição normal
+import arch
 
-rcParams["figure.figsize"] = 18, 6
 
 def custom_train_test(series: pd.Series, datepoint: str = "2024-07") -> list[pd.Series]:
     y_train = series[series.index < datepoint]
@@ -107,11 +105,24 @@ def sarima_forecast(y_train:pd.Series, y_test:pd.Series, seasonal_period: int=5)
     return model_name, mape, rmse, r2, forecast, auto_sarima_model
 
 
-def resid_tests(model):
-    # Ljungbox
+def resid_tests(model) -> None:
+    resid = model.resid()
+    # Ljung-box
+    ljungbox_result = acorr_ljungbox(resid, lags=30, return_df=True)
+    p_value_ljungbox = ljungbox_result.lb_pvalue.values[0]
+    print(f'p-valor ljung-box {p_value_ljungbox}')
+    if p_value_ljungbox > 0.05:
+        print(f'H0: p-valor > 0.05 -> Os resíduos são independentes (iid), o modelo está bem ajustado')
+    else:
+        print(f'H1: p-valor <= 0.05 -> Os resíduos não são independentes, o modelo possui falhas no ajuste.')
     # Kolmogorov-Smirnov
-    # Arch
-    pass
+    ks_stat, p_value_ks = kstest(resid, 'norm', args=(np.mean(resid), np.std(resid)))
+    print(f'Teste de Kolmogorov-Smirnov para normalidade: p-valor = {p_value_ks}')
+    if p_value_ks > 0.01:
+        print("Os resíduos seguem uma distribuição normal.")
+    else:
+        print("Os resíduos não seguem uma distribuição normal.")
+    # Arch -> Implement later.
 
 
 def ts_pipeline(y_train: pd.Series, y_test: pd.Series):
