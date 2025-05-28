@@ -20,18 +20,29 @@ def get_metrics(y_test: pd.Series, forecast: pd.Series) -> list[float]:
     r2 = r2_score(y_test, forecast)
     return mape, rmse, r2
 
-def naive_forecast(y_train: pd.Series, y_test: pd.Series) -> list:
+def naive_forecast(y_train: pd.Series, y_test: pd.Series) -> dict:
     model_name = "Naive"
-    forecast = pd.Series(y_train.iloc[-1] * len(y_test), index=y_test.index)
+    forecast = pd.Series([y_train.iloc[-1]] * len(y_test), index=y_test.index)
     mape, rmse, r2 = get_metrics(y_test, forecast)
-    return model_name, mape, rmse, r2, forecast
+    return {"Nome do Modelo": model_name,
+            "Previsão": forecast,
+            "MAPE": mape,
+            "RMSE": rmse,
+            "R2": r2,
+            "Modelo": None}
+
 
 
 def mean_forecast(y_train: pd.Series, y_test: pd.Series) -> list:
     model_name = "Mean"
     forecast = pd.Series(y_train.mean(), index=y_test.index)
     mape, rmse, r2 = get_metrics(y_test, forecast)
-    return model_name, mape, rmse, r2, forecast
+    return {"Nome do Modelo": model_name,
+            "Previsão": forecast,
+            "MAPE": mape,
+            "RMSE": rmse,
+            "R2": r2,
+            "Modelo": None}
 
 
 def drift_forecast(y_train: pd.Series, y_test: pd.Series) -> list:
@@ -41,23 +52,38 @@ def drift_forecast(y_train: pd.Series, y_test: pd.Series) -> list:
     forecast = y_train.iloc[-1] + drift_slope * np.arange(1, len(y_test) + 1)
     forecast = pd.Series(forecast, index=y_test.index)
     mape, rmse, r2 = get_metrics(y_test, forecast)
-    return model_name, mape, rmse, r2, forecast
+    return {"Nome do Modelo": model_name,
+            "Previsão": forecast,
+            "MAPE": mape,
+            "RMSE": rmse,
+            "R2": r2,
+            "Modelo": None}
 
 
 def naive_seasonal_forecast(y_train: pd.Series, y_test: pd.Series, seasonal_period: int = 5) -> list:
     model_name = "Naive Seasonal"
     forecast = pd.Series([y_train.iloc[-seasonal_period + i % seasonal_period] for i in range(len(y_test))], index=y_test.index)
     mape, rmse, r2 = get_metrics(y_test, forecast)
-    return model_name, mape, rmse, r2, forecast
+    return {"Nome do Modelo": model_name,
+            "Previsão": forecast,
+            "MAPE": mape,
+            "RMSE": rmse,
+            "R2": r2,
+            "Modelo": None}
 
 
 def ses_forecast(y_train: pd.Series, y_test: pd.Series) -> list:
     model_name = "SES"
-    ses_model = SimpleExpSmoothing.fit(y_train)
+    ses_model = SimpleExpSmoothing(y_train).fit()
     forecast = ses_model.forecast(steps=len(y_test))
     forecast.index = y_test.index
     mape, rmse, r2 = get_metrics(y_test, forecast)
-    return model_name, mape, rmse, r2, forecast, ses_model
+    return {"Nome do Modelo": model_name,
+            "Previsão": forecast,
+            "MAPE": mape,
+            "RMSE": rmse,
+            "R2": r2,
+            "Modelo": ses_model}
 
 
 def holt_forecast(y_train: pd.Series, y_test: pd.Series) -> list:
@@ -66,7 +92,12 @@ def holt_forecast(y_train: pd.Series, y_test: pd.Series) -> list:
     forecast = holt_model.forecast(steps=len(y_test))
     forecast.index = y_test.index
     mape, rmse, r2 = get_metrics(y_test, forecast)
-    return model_name, mape, rmse, r2, forecast, holt_model
+    return {"Nome do Modelo": model_name,
+            "Previsão": forecast,
+            "MAPE": mape,
+            "RMSE": rmse,
+            "R2": r2,
+            "Modelo": holt_model}
 
 
 def holt_winters_add_forecast(y_train: pd.Series, y_test: pd.Series, seasonal_period: int = 5) -> list:
@@ -75,7 +106,12 @@ def holt_winters_add_forecast(y_train: pd.Series, y_test: pd.Series, seasonal_pe
     forecast = hw_add_model.forecast(steps=len(y_test))
     forecast.index = y_test.index
     mape, rmse, r2 = get_metrics(y_test, forecast)
-    return model_name, mape, rmse, r2, forecast, hw_add_model
+    return {"Nome do Modelo": model_name,
+            "Previsão": forecast,
+            "MAPE": mape,
+            "RMSE": rmse,
+            "R2": r2,
+            "Modelo": hw_add_model}
 
 
 def holt_winters_mult_forecast(y_train: pd.Series, y_test: pd.Series, seasonal_period: int = 5) -> list:
@@ -84,7 +120,12 @@ def holt_winters_mult_forecast(y_train: pd.Series, y_test: pd.Series, seasonal_p
     forecast = hw_mult_model.forecast(steps=len(y_test))
     forecast.index = y_test.index
     mape, rmse, r2 = get_metrics(y_test, forecast)
-    return model_name, mape, rmse, r2, forecast, hw_mult_model
+    return {"Nome do Modelo": model_name,
+            "Previsão": forecast,
+            "MAPE": mape,
+            "RMSE": rmse,
+            "R2": r2,
+            "Modelo": hw_mult_model}
 
 
 def arima_forecast(y_train: pd.Series, y_test: pd.Series) -> list:
@@ -93,7 +134,12 @@ def arima_forecast(y_train: pd.Series, y_test: pd.Series) -> list:
     forecast = auto_arima_model.predict(len(y_test))
     forecast.index = y_test.index
     mape, rmse, r2 = get_metrics(y_test, forecast)
-    return model_name, mape, rmse, r2, forecast, auto_arima_model
+    return {"Nome do Modelo": model_name,
+            "Previsão": forecast,
+            "MAPE": mape,
+            "RMSE": rmse,
+            "R2": r2,
+            "Modelo": auto_arima_model}
 
 
 def sarima_forecast(y_train:pd.Series, y_test:pd.Series, seasonal_period: int=5) -> list:
@@ -102,7 +148,12 @@ def sarima_forecast(y_train:pd.Series, y_test:pd.Series, seasonal_period: int=5)
     forecast = auto_sarima_model.predict(len(y_test))
     forecast.index = y_test.index
     mape, rmse, r2 = get_metrics(y_test, forecast)
-    return model_name, mape, rmse, r2, forecast, auto_sarima_model
+    return {"Nome do Modelo": model_name,
+            "Previsão": forecast,
+            "MAPE": mape,
+            "RMSE": rmse,
+            "R2": r2,
+            "Modelo": auto_sarima_model}
 
 
 def resid_tests(model) -> None:
@@ -125,6 +176,28 @@ def resid_tests(model) -> None:
     # Arch -> Implement later.
 
 
-def ts_pipeline(y_train: pd.Series, y_test: pd.Series):
-    pass
+def ts_pipeline(series: pd.Series) -> pd.DataFrame:
+    y_train, y_test = custom_train_test(series)
+    models = []
+    naive = naive_forecast(y_train, y_test)
+    models.append(naive)
+    mean = mean_forecast(y_train, y_test)
+    models.append(mean)
+    drift = drift_forecast(y_train, y_test)
+    models.append(drift)
+    naive_seasonal = naive_seasonal_forecast(y_train, y_test)
+    models.append(naive_seasonal)
+    ses = ses_forecast(y_train, y_test)
+    models.append(ses)
+    holt = holt_forecast(y_train, y_test)
+    models.append(holt)
+    hw_add = holt_winters_add_forecast(y_train, y_test)
+    models.append(hw_add)
+    hw_mult = holt_winters_mult_forecast(y_train, y_test)
+    models.append(hw_mult)
+    arima = arima_forecast(y_train, y_test)
+    models.append(arima)
+    sarima = sarima_forecast(y_train, y_test)
+    models.append(sarima)
+    return pd.DataFrame(models)
 
