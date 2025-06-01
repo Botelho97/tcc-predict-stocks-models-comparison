@@ -176,7 +176,7 @@ def resid_tests(model) -> None:
     # Arch -> Implement later.
 
 
-def ts_pipeline(series: pd.Series) -> pd.DataFrame:
+def ts_pipeline(series: pd.Series, seasonal=12) -> pd.DataFrame:
     y_train, y_test = custom_train_test(series)
     models = []
     naive = naive_forecast(y_train, y_test)
@@ -185,19 +185,19 @@ def ts_pipeline(series: pd.Series) -> pd.DataFrame:
     models.append(mean)
     drift = drift_forecast(y_train, y_test)
     models.append(drift)
-    naive_seasonal = naive_seasonal_forecast(y_train, y_test)
+    naive_seasonal = naive_seasonal_forecast(y_train, y_test, seasonal)
     models.append(naive_seasonal)
     ses = ses_forecast(y_train, y_test)
     models.append(ses)
     holt = holt_forecast(y_train, y_test)
     models.append(holt)
-    hw_add = holt_winters_add_forecast(y_train, y_test)
+    hw_add = holt_winters_add_forecast(y_train, y_test, seasonal)
     models.append(hw_add)
-    hw_mult = holt_winters_mult_forecast(y_train, y_test)
+    hw_mult = holt_winters_mult_forecast(y_train, y_test, seasonal)
     models.append(hw_mult)
     arima = arima_forecast(y_train, y_test)
     models.append(arima)
-    sarima = sarima_forecast(y_train, y_test)
+    sarima = sarima_forecast(y_train, y_test, seasonal)
     models.append(sarima)
     return pd.DataFrame(models)
 
