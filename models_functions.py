@@ -10,9 +10,9 @@ import arch
 
 
 def custom_train_test(series: pd.Series, datepoint: str = "2024-07") -> list[pd.Series]:
-    y_train = series[series.index < datepoint]
-    y_test = series[series.index >= datepoint]
-    return y_train, y_test
+    data_train = series[series.index < datepoint]
+    data_test = series[series.index >= datepoint]
+    return data_train, data_test
 
 def get_metrics(y_test: pd.Series, forecast: pd.Series) -> list[float]:
     mape = mean_absolute_percentage_error(y_test, forecast)
