@@ -1,17 +1,31 @@
 import pandas as pd
 import numpy as np
 from sklearn.metrics import mean_absolute_percentage_error, root_mean_squared_error, r2_score
+from statsmodels.stats.diagnostic import acorr_ljungbox  # Testar para ver se os resíduos são independentes
+from scipy.stats import kstest  # Para testar se os resíduos seguem distribuição normal
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.model_selection import TimeSeriesSplit, GridSearchCV
+
+# Time Series Models
 from statsmodels.tsa.holtwinters import ExponentialSmoothing
 from statsmodels.tsa.api import SimpleExpSmoothing, Holt
 from pmdarima import auto_arima
-from statsmodels.stats.diagnostic import acorr_ljungbox  # Teste para ver se os resíduos são independentes
-from scipy.stats import kstest  # Para testar se os resíduos seguem distribuição normal
-import arch
+# Pending Prophet
+
+# ML Models
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.ensemble import RandomForestRegressor
+from xgboost import XGBRegressor
+from lightgbm import LGBMRegressor
+
+# DL
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import LSTM, Dense
 
 
-def custom_train_test(series: pd.Series, datepoint: str = "2024-07") -> list[pd.Series]:
-    data_train = series[series.index < datepoint]
-    data_test = series[series.index >= datepoint]
+def custom_train_test(data: pd.Series, datepoint: str = "2024-07"):
+    data_train = data[data.index < datepoint]
+    data_test = data[data.index >= datepoint]
     return data_train, data_test
 
 def get_metrics(y_test: pd.Series, forecast: pd.Series) -> list[float]:
@@ -176,7 +190,7 @@ def resid_tests(model) -> None:
     # Arch -> Implement later.
 
 
-def ts_pipeline(series: pd.Series, seasonal=12) -> pd.DataFrame:
+def ts_pipeline(series: pd.Series, seasonal=5) -> pd.DataFrame:
     y_train, y_test = custom_train_test(series)
     models = []
     naive = naive_forecast(y_train, y_test)
@@ -201,3 +215,77 @@ def ts_pipeline(series: pd.Series, seasonal=12) -> pd.DataFrame:
     models.append(sarima)
     return pd.DataFrame(models)
 
+
+def get_features_and_target(df: pd.DataFrame, stock: str) -> tuple:
+    X = df.drop(f'Close {stock}', axis=1)
+    y = df[f'Close {stock}']
+    return X, y
+
+
+def get_features_and_target_splitted(df: pd.DataFrame, stock: str) -> tuple:
+    X, y = get_features_and_target(df, stock)
+    X_train, X_test = custom_train_test(X)
+    y_train, y_test = custom_train_test(y)
+    return X_train, X_test, y_train, y_test
+
+
+def ml_pipeline(df: pd.DataFrame, stock: str):
+    X_train, X_test, y_train, y_test = get_features_and_target_splitted(df, stock)
+    tscv = TimeSeriesSplit(n_splits=15)  # Cross validation com time series
+    modelos = {
+        'DecisionTree': {
+            'model': DecisionTreeRegressor(random_state=42),
+            'params': {
+                'max_depth': [3, 5, 10],
+                'min_samples_split': [2, 5]
+            }
+        },
+        'RandomForest': {
+            'model': RandomForestRegressor(random_state=42),
+            'params': {
+                'n_estimators': [50, 100, 150, 200],
+                'max_depth': [3, 5, 10],
+                'ccp_alpha': [0.1, 0.01, 1]
+            }
+        },
+        'XGBoost': {
+            'model': XGBRegressor(random_state=42),
+            'params': {
+                'n_estimators': [50, 100],
+                'max_depth': [3, 5, 10],
+                'learning_rate': [0.01, 0.1]
+            }
+        },
+        'LightGBM': {
+            'model': LGBMRegressor(random_state=42),
+            'params': {
+                'n_estimators': [50, 100],
+                'num_leaves': [31, 50],
+                'learning_rate': [0.01, 0.1]
+            }
+        }
+    }
+    best_models = {}
+
+    for nome, config in modelos.items():
+        print(f"Treinando {nome}...")
+        grid = GridSearchCV(config['model'],
+                            config['params'],
+                            cv=tscv,
+                            scoring='r2',
+                            n_jobs=-1)
+        grid.fit(X_train, y_train)
+        forecast = grid.predict(X_test)
+        mape, rmse, r2 = get_metrics(y_test, forecast)
+        best_models[nome] = {
+            'melhor_estimator': grid.best_estimator_,
+            'melhor_score': grid.best_score_,
+            'melhores_params': grid.best_params_,
+            'modelo': grid,
+            'predict': forecast,
+            'mape_test': mape,
+            'rmse_test': rmse,
+            'r2': r2
+        }
+    
+    return best_models
