@@ -60,3 +60,4 @@ logs/
 # Testes
 test*.*
 final*.*
+legacy/
