@@ -10,7 +10,7 @@ from sklearn.model_selection import TimeSeriesSplit, GridSearchCV
 from statsmodels.tsa.holtwinters import ExponentialSmoothing
 from statsmodels.tsa.api import SimpleExpSmoothing, Holt
 from pmdarima import auto_arima
-# Pending Prophet
+from prophet import Prophet
 
 # ML Models
 from sklearn.tree import DecisionTreeRegressor
@@ -289,3 +289,49 @@ def ml_pipeline(df: pd.DataFrame, stock: str):
         }
     
     return best_models
+
+
+def lstm(df: pd.DataFrame, stock: str) -> dict:
+    scaler = MinMaxScaler()
+    y = scaler.fit_transform(df[f"Close {stock}"].values.reshape(-1, 1)[1:])
+    X = scaler.fit_transform(df["Lag 1"].values.reshape(-1, 1)[1:])
+    cutoff = len(custom_train_test(df)[0]) - 1
+    X_train, X_test = X[:cutoff], X[cutoff:]
+    y_train, y_test = y[:cutoff], y[cutoff:]
+    # 1. Definir modelo
+    model = Sequential([
+        LSTM(50, activation="tanh", input_shape=(10, 1)),  # 50 neurônios, input = (timesteps=1, features=1)
+        # Dense(units=10, activation = 'linear'),
+        Dense(1)  # Saída (preço previsto)
+    ])
+
+    # 2. Compilar
+    model.compile(optimizer="adam", loss="mse")  # Otimizador Adam, erro quadrático médio
+
+    # 3. Treinar
+    history = model.fit(
+        X_train, y_train,
+        epochs=50,
+        batch_size=32,
+        validation_data=(X_test, y_test)
+    )
+
+    y_pred = model.predict(X_test)
+
+    # 2. Desnormalizar (voltar para escala original)
+    y_test_real = scaler.inverse_transform(y_test)
+    y_pred_real = scaler.inverse_transform(y_pred)
+
+    mape, rmse, r2 = get_metrics(y_test_real, y_pred_real)
+
+    return {'nome': "LSTM",
+            'modelo': model,
+            'predict': y_pred_real,
+            'mape_test': mape,
+            'rmse_test': rmse,
+            'r2': r2
+            }
+
+
+def prophet_predict(df: pd.DataFrame, stock: str):
+    pass
