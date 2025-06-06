@@ -18,7 +18,7 @@ from sklearn.ensemble import RandomForestRegressor
 from xgboost import XGBRegressor
 from lightgbm import LGBMRegressor
 
-# DL
+# DL Models
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import LSTM, Dense
 
@@ -333,5 +333,21 @@ def lstm(df: pd.DataFrame, stock: str) -> dict:
             }
 
 
-def prophet_predict(df: pd.DataFrame, stock: str):
-    pass
+def prophet_predict(series: pd.Series) -> dict:
+    y_train, y_test = custom_train_test(series)
+    df_train = pd.DataFrame({"ds": y_train.index, "y": y_train})
+    prophet_model = Prophet(daily_seasonality=False)  # Sem sazonalidade diária para ações
+    prophet_model.fit(df_train)
+    future = prophet_model.make_future_dataframe(periods=len(y_test))
+    forecast_prophet_df = prophet_model.predict(future)
+    forecast = pd.Series(forecast_prophet_df.yhat[-len(y_test):])
+    forecast.index = y_test.index
+    mape, rmse, r2 = get_metrics(y_test, forecast)
+    return {'nome': "Prophet",
+            'modelo': prophet_model,
+            'predict': forecast,
+            'mape_test': mape,
+            'rmse_test': rmse,
+            'r2': r2
+            }
+
