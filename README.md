@@ -1,14 +1,14 @@
-# Precificação de Ações na Bolsa Brasileira
+# 📈 Precificação de Ações na Bolsa Brasileira
 
 **Comparação Entre Modelos de Machine Learning e Séries Temporais**
 
 Este projeto faz parte do Trabalho de Conclusão de Curso do MBA em Data Science e Analytics da USP/Esalq. O objetivo é comparar o desempenho de diferentes abordagens de modelagem para previsão de preços de ações negociadas na B3, utilizando modelos estatísticos e de aprendizado de máquina.
 
-## Objetivo
+## 🎯 Objetivo
 
 Avaliar a eficácia de modelos preditivos aplicados à precificação de ações, analisando o desempenho de técnicas estatísticas de séries temporais e modelos supervisionados de machine learning.
 
-## Modelos Utilizados
+## 💻 Modelos Utilizados
 
 ### Modelos de Séries Temporais:
 - Naive
@@ -29,7 +29,7 @@ Avaliar a eficácia de modelos preditivos aplicados à precificação de ações
 - LightGBM
 - LSTM (Long Short-Term Memory)
 
-## Metodologia
+## 🔍 Metodologia
 
 - **Tipo de Estudo**: Quantitativo e experimental
 - **Fontes de Dados**: Yahoo Finance e Banco Central do Brasil
@@ -42,7 +42,7 @@ Avaliar a eficácia de modelos preditivos aplicados à precificação de ações
 ## 📂 Estrutura do Projeto
 
 ```
-📁 projeto-precificacao-acoes
+📁 tcc-predict-stocks-models-comparison
 ├── data/              # Dados brutos e tratados
 ├── data_wrangling/    # Scripts de Data Wrangling
 ├── src/               # Scripts auxiliares (funções para treinamento e output de modelos)
@@ -53,8 +53,8 @@ Avaliar a eficácia de modelos preditivos aplicados à precificação de ações
 
 ## 📏 Métricas de Avaliação
 
-- RMSE (Root Mean Squared Error)
 - MAPE (Mean Absolute Percentage Error)
+- RMSE (Root Mean Squared Error)
 - R² (Coeficiente de Determinação)
 
 ## 📚 Referências
