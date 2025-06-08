@@ -190,8 +190,9 @@ def resid_tests(model) -> None:
     # Arch -> Implement later.
 
 
-def ts_pipeline(series: pd.Series, seasonal=5) -> pd.DataFrame:
+def ts_pipeline(series: pd.Series) -> pd.DataFrame:
     y_train, y_test = custom_train_test(series)
+    seasonal = len(y_test) // 6
     models = []
     naive = naive_forecast(y_train, y_test)
     models.append(naive)
