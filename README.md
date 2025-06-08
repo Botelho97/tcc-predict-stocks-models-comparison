@@ -2,7 +2,7 @@
 
 **Comparação Entre Modelos de Machine Learning e Séries Temporais**
 
-Este projeto faz parte do Trabalho de Conclusão de Curso do MBA em Data Science e Analytics da USP/Esalq. O objetivo é comparar o desempenho de diferentes abordagens de modelagem para previsão de preços de ações negociadas na B3, utilizando modelos estatísticos e de aprendizado de máquina.
+Este projeto faz parte do Trabalho de Conclusão de Curso do MBA em Data Science e Analytics da USP/Esalq. O objetivo é comparar o desempenho de diferentes abordagens de modelagem para previsão de preços de ações negociadas na B3, utilizando modelos clássicos de séries temporais e de aprendizado de máquina.
 
 ## 🎯 Objetivo
 
@@ -46,16 +46,17 @@ Avaliar a eficácia de modelos preditivos aplicados à precificação de ações
 ├── data/              # Dados brutos e tratados
 ├── data_wrangling/    # Scripts de Data Wrangling
 ├── src/               # Scripts auxiliares (funções para treinamento e output de modelos)
-├── main.py            # Execução principal do projeto
+├── main.ipynb         # Execução principal do projeto
 ├── README.md
+├── requirements.txt
 └── LICENSE
 ```
 
 ## 📏 Métricas de Avaliação
 
 - MAPE (Mean Absolute Percentage Error)
-- RMSE (Root Mean Squared Error)
-- R² (Coeficiente de Determinação)
+- RMSE (Root Mean Squared Error)  # A ser implementado
+- R² (Coeficiente de Determinação)  # A ser implementado
 
 ## 📚 Referências
 
