@@ -171,7 +171,7 @@ def sarima_forecast(y_train:pd.Series, y_test:pd.Series, seasonal_period: int=5)
 
 
 def resid_tests(model) -> None:
-    resid = model.resid()
+    resid = model.resid
     # Ljung-box
     ljungbox_result = acorr_ljungbox(resid, lags=30, return_df=True)
     p_value_ljungbox = ljungbox_result.lb_pvalue.values[0]
